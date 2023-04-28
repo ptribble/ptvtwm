@@ -1,0 +1,31 @@
+ptvtwm - Peter's tvtwm, or Pie tvtwm, if you prefer.
+
+Once there was tvtwm - Tom's Virtual Tab Window Manager
+
+Along came piewm, a derivative of an old version of tvtwm that added
+experimental support for pie menus
+
+I wanted to see what piewm did, and tried to make piewm work, but it
+seemed to mess up the config file parsing and would never do anything
+useful as a result. After evaluating a couple of options, I decided
+that it would be much easier to take the pie menu pieces and add them
+to a working copy of tvtwm than to work out why lex was going wrong
+(and I have no familiarity with lex). Furthermore, piewm was built on
+an older branch of tvtwm, so by starting from the latest tvtwm all the
+enhancements and fixes that have been made to tvtwm since piewm
+branched off get picked up as well.
+
+To be specific, this is piewm 1.04 code added to tvtwm patchlevel 11.
+
+This worked surprisingly well, despite that the fact that I don't
+really understand how X or window managers work (although I'm starting
+to understand some of it by making this all work), and despite that
+fcat that tvtwm had changed quite significantly in some important
+areas. It still works as tvtwm, and mostly works as piewm. (One
+difficulty I have is that I never got piewm working, so don't have a
+baseline to compare to, hence my claim that it mostly works.)
+
+The working version that I came up with is ptvtwm-1.0a1.
+
+It's been tweaked a little in the decade or more since to make it
+build with modern compilers.

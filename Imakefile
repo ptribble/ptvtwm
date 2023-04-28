@@ -1,0 +1,149 @@
+#if (ProjectX < 5)		/* Pre-X11R5 compiling environment */
+# define XCOMM	#
+# define NullParameter
+RELEASE_DEFINES = -DPRE_R5_ENV
+#endif
+
+XCOMM
+XCOMM Here is an Imakefile for tvtwm.  The below defines for make are
+XCOMM neccessary to have things work as expected, please don't remove
+XCOMM any of them.
+XCOMM
+
+         YFLAGS = -d
+        DEPLIBS = $(DEPXMULIB) $(DEPEXTENSIONLIB) $(DEPXLIB)
+
+XCOMM	This symbol is to make m4 be used to preprocess your .[tv]twmrc
+XCOMM file through m4 by default.  Set to NO, you need to use the -m
+XCOMM runtime option to make it use m4.
+
+#define DefaultToM4 YES
+
+XCOMM   If you have flex as your $(LEX), (or a lex that *is* flex, like
+XCOMM on many x86 BSD boxes) then you need to add the -l argument to cause
+XCOMM the maximum level of compatibility with AT&T lex.  In particular, it
+XCOMM will define yylineno.  If you get an "Undefined symbol: _yylineno"
+XCOMM when linking, adjust this to work on your system.
+
+#if defined(i386BsdArchitecture) || defined(LinuxArchitecture)
+# ifdef LexCmd
+LEX = LexCmd -l
+# else
+LEX = lex -l
+# endif
+#endif
+
+XCOMM   If you don't have waitpid(), you're kinda out of luck.  tvtwm
+XCOMM will leave zombie processes around, cause there's no safe way to
+XCOMM wait for them without waitpid().  So, if you define this symbol,
+XCOMM tvtwm will build just dandy without waitpid(), but will leave
+XCOMM zombies.  (*sigh*)  Oh well.  Better than nothing.
+
+#undef No_waitpid
+
+XCOMM
+XCOMM   Any of these three lines can be commented out.  The first two are
+XCOMM for Xpm support.  If you do not wish to use the Xpm library functions,
+XCOMM comment these two lines out.  The last line is for support to allow
+XCOMM the xloadimage program by Jim Frost to perform your background loading.
+XCOMM (thus allowing loading of other image formats besides Xpm or Xbm)
+XCOMM                                 Chris P. Ross
+XCOMM                                 <cross@eng.umd.edu>
+XCOMM
+XCOMM   Also note, if you install your libXpm.a in a strange place, you'll
+XCOMM have to adjust $(XPMLIB) below.  You may also have to change the
+XCOMM include path of the compile, so that the code can include from
+XCOMM <X11/xpm.h>.
+XCOMM
+
+         XPMLIB = -lXpm
+        XPM_DEF = -DXPM
+    XLOADIM_DEF = -DXLOADIMAGE=\"$(TWMDIR)/xloadimage\"
+
+XCOMM   Ultrix doesn't have a mkstemp in libc...
+XCOMM   Sys V doesn't seem to either...
+
+#if SystemV || defined(UltrixArchitecture)
+  LOCAL_DEFINES = $(XPM_DEF) -DNOSTEMP
+#else
+  LOCAL_DEFINES = $(XPM_DEF)
+#endif
+
+XCOMM   Various defines to pass into twm.c
+
+#if DefaultToM4
+         M4_DEF = -DM4_DEFAULT
+#endif
+#ifdef No_waitpid
+    WAITPID_DEF = -DNO_WAITPID
+#endif
+       TWM_DEFS = $(XLOADIM_DEF) $(M4_DEF) $(WAITPID_DEF)
+
+LOCAL_LIBRARIES = $(XMULIB) $(EXTENSIONLIB) $(XPMLIB) $(XLIB)
+       LINTLIBS = $(LINTXMU) $(LINTEXTENSIONLIB) $(LINTXLIB)
+        DEFINES = -DSHAPE $(RELEASE_DEFINES) $(LOCAL_DEFINES) $(SIGNAL_DEFINES)
+
+           SRCS = gram.c lex.c deftwmrc.c add_window.c gc.c list.c twm.c \
+                  parse.c menus.c events.c resize.c util.c version.c \
+                  iconmgr.c cursor.c icons.c vdt.c move.c LocPixmap.c \
+                  regexp.c
+
+           OBJS = gram.o lex.o deftwmrc.o add_window.o gc.o list.o twm.o \
+                  parse.o menus.o events.o resize.o util.o version.o \
+                  iconmgr.o cursor.o icons.o vdt.o move.o LocPixmap.o \
+                  regexp.o
+
+AllTarget(tvtwm ssetroot)
+
+SpecialObjectRule(parse.o,NullParameter,'-DSYSTEM_INIT_DIR="'$(TWMDIR)'"')
+SpecialObjectRule(vdt.o,NullParameter,$(XLOADIM_DEF))
+SpecialObjectRule(LocPixmap.o,NullParameter,'-DBITMAPDIR="$(INCDIR)/bitmaps"')
+SpecialObjectRule(twm.o,NullParameter,$(TWM_DEFS))
+
+#if defined(UltrixArchitecture) || defined(AlphaArchitecture)
+SpecialObjectRule(menus.o,NullParameter,-Olimit 700)
+#endif
+
+#if !HasPutenv
+SpecialObjectRule(util.o,NullParameter,-DNOPUTENV)
+#endif
+
+depend:: lex.c gram.c deftwmrc.c 
+
+ComplexProgramTarget(tvtwm)
+NormalProgramTarget(ssetroot,ssetroot.o,,$(LOCAL_LIBRARIES),)
+
+XCOMM This will have a link called twm installed linked to tvtwm
+
+XCOMM install::
+XCOMM	rm -f $(BINDIR)/twm
+XCOMM	ln $(BINDIR)/tvtwm $(BINDIR)/twm
+
+#if (ProjectX < 5)
+InstallNonExec(system.twmrc,$(TWMDIR))
+/* InstallProgram(ssetroot,$(BINDIR)/xsetroot) */
+#else
+InstallNonExecFile(system.twmrc,$(TWMDIR))
+/* InstallNamedProg(ssetroot,xsetroot,$(BINDIR)) */
+#endif
+
+gram.h gram.c: gram.y
+	$(YACC) $(YFLAGS) gram.y
+	$(MV) y.tab.c gram.c
+	$(MV) y.tab.h gram.h
+
+clean::
+	$(RM) y.tab.h y.tab.c lex.yy.c gram.h gram.c lex.c deftwmrc.c 
+
+deftwmrc.c:  system.twmrc
+	$(RM) $@
+	@echo '/* ' >>$@
+	@echo ' * This file is generated automatically from the default' >>$@
+	@echo ' * twm bindings file system.twmrc by the twm Imakefile.' >>$@
+	@echo ' */' >>$@
+	@echo '' >>$@
+	@echo 'char *defTwmrc[] = {' >>$@
+	sed -e '/^#/d' -e 's/"/\\"/g' -e 's/^/    "/' -e 's/$$/",/' \
+		system.twmrc >>$@
+	@echo '    (char *) 0 };' >>$@
+

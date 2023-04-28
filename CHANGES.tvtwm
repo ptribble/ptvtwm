@@ -1,0 +1,180 @@
+Patchlevel 11:		-- Released 9-Feb-95 --
+- Changed the width, height, and border_width values in the TwmIcon struct
+  to be unsigned int's.  Avoids a compiler warning...
+- removed FIXED_XmuCompareISOLatin1().  This appears to have been created
+  to replace a buggy version of XmuCompareISOLatin1() in R4 (and/or earlier)
+  This was fixed in R5.  If you're running a pre-R5 Xlib, then you're out
+  of date enough that I assume you won't care about the bug...
+- added code Josh Osborne (stripes@uu.net) sent me eons ago to make
+  the m4 input work right on BSDI (and most other x86 bsd boxes).  I
+  finally have a x86-BSD box to test it on!  :-)
+- alone the same lines as above, modified Imakefile to add the -l argument
+  to lex when running on a machine with flex, or a flex-ish lex.  (See comment
+  in parse.c)
+- changed the m4 defines writing to quote strings that may end up
+  with commas in them...  (bug report from Conrad Hughes
+  <chughes@maths.tcd.ie>)
+- changed the WARPTO code in menus.c to resemble the R6 twm code, calling
+  a WarpThere function.  This seems to fix a problem that caused a failure
+  in f.warpto to not beep.  It now beeps...
+- Fixed a bug that has been present back through and including pl6+.  I was
+  accidentally using = in an if, instead of ==...  Oops.  Thanks go to
+  Mark Harrison (mjh15@aztec.bton.ac.uk) for spotting this.
+
+Patchlevel 10:
+- fixed bug in the geometry error checking in two other places
+  (thanks go to Tom Ekberg)
+- Added code from the R6 Xlib code to LocPixmap.c
+- improve f.relativemove to not die if no window is active, and
+  to call SetupWindow() which will do most of the work for it...
+
+Patchlevel 9 beta-8:
+- fixed bug in the f.scroll error-checking in vdt.c
+  (Found and fixed by Tom Ekberg <ekberg@asl.dl.nec.com>)
+- don't use WAIT as a token name, clashes with a macro on OSF/1
+- Added f.relativemove function.  Pass it a string containing a geometry,
+  and it will move a window that many pixels from its current location.
+
+Patchlevel 9 beta-7:
+- Added code from Tom to make tvtwm happier with OI applications
+- Check the return values of getenv() in parse.c before using them
+- typo in the man page
+
+Patchlevel 9 beta-6:
+- Fixed lex.l so that it won't clash with flex.
+- Changed some variable types to match prototypes
+- Fixed f.warpto, so that it scans name, res_name, and res_class, in
+that order.
+- Fixed a couple variable types to match prototypes better
+- use the proper (DisplayString) macro to get display name
+- Alpha support, a little
+
+Patchlevel 9 beta-5 (YAPR):
+- Fixed a minor bug in DontInterpolateTitles.  Wasn't incrementing the
+color indices when it hit a title, even tho it had sized the index-gaps
+to allow for it.
+- Lots of double-headed stuff:
+  - Fixed the exec of xloadimage to pass proper screen number in
+  the -display arg
+  - Fixed the calls to libXpm such that it can load properly on non-primary
+  screens.  (This thanks to Don Hopkins <hopkins+@cs.cmu.edu>, from piewm.
+  I'd noticed this bug recently, but hadn't found it yet.  He did for me.
+  Thanks!)
+  - Changed a few other ooccurances of calls to Default*() macros, hopefully
+  eliminating single-screen dependancy code.  More to do, I'd bet.
+
+Patchlevel 9 beta-4 (final pre-release):
+- Fixed the SIGCHLD handler to not get hung up by accidentally wait()ing
+on a popen() from inside the Xpm routines.  Now uses waitpid().  If you
+don't have waitpid(), you just have to live with zombie processes...
+
+RJC update Beth:
+- New menu update code, no more busy wait.
+- Focus in icon manager even for title-less windows.
+- Some more XPM ifdefs.
+
+RJC update Aleph:
+- Added new list code. In fact this is the code from my version with
+	the calling sequences reduced to what this code expects. This means
+	that when the rest of the code is updated, property matching
+	can be added quickly.
+- Added the extra defines in the m4 interface. INITFILE is the tvtwmrc file
+	RJC is defined IFF my extensions are there, XPM iff the xpm support
+	is there.
+- Fixed menu problem.
+- Added the code to set root window properties to say where tvtwm is.
+- Put in new focus tracking code.
+- added -sync command line argument.
+- check that the window is one of ours before removing it from the
+	save set. Also other changes related to this.
+- colourmap handling fix.
+- got rid of the dreaded beep when the info window is removed.
+- select for exposure on hilite window iff there are end pixmaps
+	defined.
+- new get-property function which understands some types.
+- some more XPM ifdefs.
+- allow icons to change even if forceIcons is turned on.
+- ghostly entries from dead clients no longer fill icon regions.
+- removed the instant move hack
+- raise before move.
+- resize outside home screen bug.
+
+
+Patchlevel 9 beta (beta, unreleased):
+- Added slews of stuff from Richard Caley
+  - Allow regular expressions in window lists etc.
+  - Complete rewrite of the icon code puts all icon-related information
+	into a single structure and breaks up the process of building
+	an icon into managable pieces.
+  - Icon squeezing.
+  - RememberScreenPosition causes deiconified windows to reapear
+	at their old _screen_ position.
+  - HiliteLeft and HiliteRight pixmaps.
+  - Iconified pixmap in icon managers definable.
+  - Shadow pixmap for menu shadows definable.
+  - Pullright pixmap definable.
+  - Cursor names as pixmap definitions.
+  - Dynamic menus can be changes during a run.
+  - Default menu actions and movable defaults.
+  - User defined Identification string in f.identify windows.
+  - Icon regions can be retricted to certain types of client.
+  - NoOpaqueMoveSavunders to save memory on colour machines.
+  - Popupsensitivity controls which part of a menu pops up sub menus.
+  - MenuShadowWidth controls the size of the shadow.
+  - AfterSetupRun is a command to run after the wm has set things up.
+  - f.deleteordestroy deletes a window if the client understands that
+	otherwise destroys the client (by jwz).
+  - f.winexec (!!) askes for a window before executing the command.
+  - Commands executed by f.(win)exec get window information in the
+	environment.
+
+Patchlevel 8++++ (beta, unreleased):
+- Changed the way signals are handled, and other little stuff to make
+SystemV machines like it more...
+- Changed the wait() algorythm to use a signal handler on SIGCHLD, instead
+of using the waitpid.
+- Added the WrapVirtual keyword.  Makes the panner wrap on 
+scroll{left,right,up,down}
+
+Patchlevel 8+++ (beta, unreleased):
+- Added minor fix from Doug Hughes (doug@doc.vf.ge.com) which does a
+waitpid() so as to remove zombie process which was m4
+- Fixed a bug that caused multiple windows that use the same pixmap as an
+icon pixmap to only get the pixmap for the first such window.
+
+Patchlevel 8++ (beta, unreleased):
+- Added fixes from Bob Mende (mende@piecomputer.rutgers.edu) to do:
+  - an f.restart is performed on SIGUSR1
+  - f.menufunc now works
+  - fixed listrings functionality
+  - Modified/corrected man page
+- Deleted a couple of functions from LocPixmap.c that clash with functions
+in XmuLocateBitmapFile() in libXmu
+- xloadimage setting in Imakefile defaults to $(BINDIR)/xloadimage, not
+/usr/local/bin/xloadimage, now...
+
+Patchlevel 8 (unreleased):
+- Made things not use m4 by default unless compiled to do so.
+  (added -m and -M runtime flags)
+- Passing XpmColorSymbols around in the pixmap routines.  Does color
+translations when loading from a bitmap.  pixmap routines now return the
+correctly colored pixmap.
+- Basically, all the pixmap code is different.  You'll have to look at
+each thing if you rally wanna know how it changed...
+- Fixed the info window so that if you're DefaultBackground color is set,
+that will load as the background of the XPM pixmaps...
+- Made apps that have an icon pixmap AND mask use that mask as well as
+that pixmap.
+- Made apps with an icon-window get a unused pixmap setting, to keep the
+UnknownIcon from being assigned.  (It would be ignored, but it's mask would
+be used.)
+- Added the DontInterpolateTitles boolean.  If you have this in your .twmrc,
+interpolating the menu colors won't effect f.title's in the middle of the
+menu.  (This was a thing that bothered me a bit...)
+- Made it set the m4 variable TWM_TYPE to twm, unless it's called as tvtwm.
+(ie, can symlink twm to tvtwm and run it as twm...)
+- minor, severely incomplete, updates to the man page.
+- Totally removed GetUnknownIcon().  (part of the pixmap rewriting)
+- Pass color specs to xloadimage on the command line.  Correct useage of
+VirtualDesktop{Fore,Back}ground settings, now.
+

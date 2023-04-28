@@ -1,0 +1,8 @@
+Ought to have proper function prototypes
+
+Pie menus show title as an entry - should they?
+
+Pie submenus flicker *way* too much
+
+There appears to be a startup race, several times now I've seen it fail
+to initialize correctly

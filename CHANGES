@@ -1,0 +1,49 @@
+ptvtwm-1.0b1
+
+Clean up some comments and typos
+
+Look for program-specific default startup file. For example, if
+invoked as foowm, it will look for system.foowmrc before system.twmrc
+
+Updated the man page.
+
+Look for xloadimage in TWMDIR (so I can ship a private copy)
+
+ptvtwm-1.0a2
+
+Added missing includes to fix up implicit function declaration warnings.
+
+Removed unused variables identified by lint
+
+Removed OLD_MOVE protected code from menus.c
+
+Killed the staff group stuff from parse.c - NG_*, def_netmask(),
+getmask(), names[], isstaff()
+
+Remove code guarded by #if 0 in events.c, parse.c, menus.c
+
+Pie submenus actually work now.
+
+Remove unnecessary elements of menu structures the pie menu code added,
+as they are constants. Removed slice, label_radius_min,
+label_radius_step, inactive_radius.
+
+Keep pie menus on screen
+
+main() in twm loses environ argument
+
+pull out common code in PaintPieMenuEntry()
+
+Stopped pie menu items showing border debris as you mouse off
+
+Get pie submenus to appear in a more sensible place
+
+TWM_TYPE (for m4) set to the name of the binary, so if you link it to
+multiple ones it will look like whichever one it's called as.
+
+Set search order of startup files depending on executable name.
+
+ptvtwm-1.0a1
+
+Hacked in pie menus from piewm 1.04 to the point where they actually
+started to work.
